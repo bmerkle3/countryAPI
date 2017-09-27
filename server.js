@@ -27,23 +27,41 @@ app.use(function(request, response, next) {
 });
 // allows us to request from react (client-side) back to postgres/express api
 
+app.get('/api/countries', function(request, response) {
+  pool.connect(function(err, db, done) {
+    if (err) {
+      return response.status(400).send(err);
+    } else {
+      db.query('SELECT * FROM countries', function(err, table) {
+        done();
+        if (err) {
+          return response.status(400).send(err);
+        } else {
+          return response.status(200).send(table.rows);
+        }
+      });
+    }
+  });
+});
+
 app.post('/api/new-country', function(request, response) {
   var country_name = request.body.country_name;
   var language = request.body.language;
-  var key = 12;
+  var key = request.body.key;
   pool.connect((err, db, done) => {
     if (err) {
-      return console.log(err);
+      return response.status(400).send(err);
     } else {
       db.query(
         'INSERT INTO countries (country_name, language, key) VALUES($1, $2, $3)',
         [country_name, language, key],
         (err, table) => {
           if (err) {
-            return console.log(err);
+            return response.status(400).send(err);
           } else {
             console.log('Data inserted');
             db.end();
+            response.status(201).send({ message: 'Data inserted' });
           }
         }
       );
