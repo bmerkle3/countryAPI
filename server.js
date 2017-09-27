@@ -30,18 +30,18 @@ app.use(function(request, response, next) {
 app.post('/api/new-country', function(request, response) {
   var country_name = request.body.country_name;
   var language = request.body.language;
+  var key = 12;
   pool.connect((err, db, done) => {
     if (err) {
       return console.log(err);
     } else {
       db.query(
-        'INSERT INTO countries (country_name, language) VALUES($1, $2)',
-        [countryName, language],
+        'INSERT INTO countries (country_name, language, key) VALUES($1, $2, $3)',
+        [country_name, language, key],
         (err, table) => {
           if (err) {
             return console.log(err);
           } else {
-            console.log(table.rows);
             console.log('Data inserted');
             db.end();
           }
